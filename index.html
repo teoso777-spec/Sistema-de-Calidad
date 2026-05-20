@@ -23,7 +23,6 @@
             color: #333;
         }
 
-        /* Pantalla de Inicio */
         #landing-screen {
             display: flex;
             flex-direction: column;
@@ -52,16 +51,14 @@
 
         .btn-main:hover { transform: scale(1.05); }
 
-        /* Contenedor Principal */
         #app-container {
-            display: none; /* Oculto al inicio */
+            display: none;
             padding: 20px;
             max-width: 800px;
             margin: 0 auto;
             min-height: 100vh;
         }
 
-        /* Cabecera */
         .header {
             display: flex;
             justify-content: space-between;
@@ -83,7 +80,6 @@
             cursor: pointer;
         }
 
-        /* Grid de Módulos */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -105,7 +101,6 @@
         .card h3 { font-size: 1rem; margin: 0; }
         .card p { font-size: 0.8rem; color: #777; margin-top: 5px; }
 
-        /* Lista de Registros */
         .list-item {
             background: var(--white);
             padding: 15px;
@@ -118,7 +113,6 @@
             cursor: pointer;
         }
 
-        /* Formulario de Registro */
         .form-container {
             background: var(--white);
             padding: 20px;
@@ -161,111 +155,47 @@
         .btn-delete { background: var(--danger-color); color: white; }
         .btn-attach { background: #8e44ad; color: white; }
 
-        /* Utilidades */
         .hidden { display: none !important; }
         .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
         .tab { padding: 8px 15px; background: #eee; border-radius: 20px; cursor: pointer; white-space: nowrap; }
         .tab.active { background: var(--secondary-color); color: white; }
-
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA DE INICIO -->
     <div id="landing-screen">
         <h1>SISTEMA DE GESTIÓN DIGITAL DE CALIDAD E INOCUIDAD</h1>
         <button class="btn-main" onclick="enterSystem()">INGRESAR</button>
     </div>
 
-    <!-- APLICACIÓN PRINCIPAL -->
     <div id="app-container">
-        <!-- Cabecera Común -->
         <div class="header">
             <button class="btn-back" id="btn-back-global" onclick="goBack()" style="visibility: hidden;">← Volver</button>
             <div class="user-info">
                 <span id="user-role-display">Rol: Responsable</span> | <span id="current-screen-name">Inicio</span>
             </div>
         </div>
-
-        <!-- Contenedor Dinámico del Contenido -->
         <div id="dynamic-content"></div>
     </div>
 
     <script>
-        // --- DATOS DEL SISTEMA (Estructura Jerárquica) ---
+        let currentStep = { module: null, subModule: null, record: null };
+        let currentRole = "responsable";
+
         const systemData = [
-            {
-                id: 1, title: "MÓDULO 1: Requisitos Sanitarios y Ambientales", icon: "🌿",
-                submodules: [
-                    { id: 1.1, title: "Control integral de plagas", records: ["Fumigación periódica", "Monitoreo de medidas preventivas", "Monitoreo de trampas", "Planes de acción"] },
-                    { id: 1.2, title: "Limpieza y desinfección", records: ["Limpieza diaria", "Limpieza semanal", "Planes de acción"] },
-                    { id: 1.3, title: "Manejo integral de residuos sólidos", records: ["Registro de condiciones de zonas", "Planes de acción"] },
-                    { id: 1.4, title: "Abastecimiento de agua potable", records: ["Control de cloro y pH", "Inspección de suministro", "Limpieza tanque", "Planes de acción"] }
-                ]
-            },
-            {
-                id: 2, title: "MÓDULO 2: Requisitos para el Personal Manipulador", icon: "👷",
-                submodules: [
-                    { id: 2.1, title: "Lista de chequeo personal", records: ["Chequeo diario"] },
-                    { id: 2.2, title: "Planes de acción", records: ["Plan general"] },
-                    { id: 2.3, title: "Condición de salud", records: ["Registro por manipulador (Adjuntar archivo)"] }
-                ]
-            },
-            {
-                id: 3, title: "MÓDULO 3: Operaciones Claves en el Proceso", icon: "⚙️",
-                submodules: [
-                    { id: 3.1, title: "Proveedores materia prima", records: ["Criterios aceptación materia prima", "Criterios químicos", "Criterios empaque", "Criterios rotulado", "Listado proveedores", "Soportes"] },
-                    { id: 3.2, title: "Muestreo", records: ["Registro de muestreo (Adjuntar)", "Plan de acción"] },
-                    { id: 3.3, title: "Aseguramiento de calidad", records: ["Control fabricación", "Fabricación condimentos", "Control variables", "Liberación materia prima", "Bloqueo productos", "Inspección semanal planta", "Liberación producto", "Plan de acción", "PQR y plan", "Diagramas procesos", "Planes acción producción"] }
-                ]
-            },
-            {
-                id: 4, title: "MÓDULO 4: Equipos Requeridos", icon: "🔧",
-                submodules: [
-                    { id: 4.1, title: "Certificaciones equipos", records: ["Certificados material (Adjuntar)"] },
-                    { id: 4.2, title: "Calibración equipos", records: ["Registro calibración", "Registro verificación"] },
-                    { id: 4.3, title: "Mantenimiento equipos", records: ["Registro mantenimiento", "Reporte mantenimiento", "Reporte daños", "Plan de acción"] }
-                ]
-            },
-            {
-                id: 5, title: "MÓDULO 5: Verificación sobre el Producto", icon: "🚚",
-                submodules: [
-                    { id: 5.1, title: "Transporte de alimentos", records: ["Registro inspección diaria (Evidencia)", "Limpieza vehículo (Evidencia)", "Fumigación vehículo (Evidencia)", "Plan de acción"] },
-                    { id: 5.2, title: "Trazabilidad, recall y devoluciones", records: ["Registro trazabilidad", "Averías y devoluciones", "Recall", "Plan de acción"] },
-                    { id: 5.3, title: "Vida útil", records: ["Vida útil (Cargar archivos)"] }
-                ]
-            },
-            {
-                id: 6, title: "MÓDULO 6: Registros Sanitarios", icon: "📋",
-                submodules: [
-                    { id: 6.1, title: "Listado de registros por producto", records: ["Registro Producto A", "Registro Producto B"] } // Simulado
-                ]
-            },
-            {
-                id: 7, title: "MÓDULO 7: Tablas Nutricionales", icon: "🥗",
-                submodules: [
-                    { id: 7.1, title: "Listado tablas nutricionales", records: ["Tabla Producto A", "Tabla Producto B"] } // Simulado
-                ]
-            }
+            { id: 1, title: "MÓDULO 1: Requisitos Sanitarios y Ambientales", icon: "🌿", submodules: [{ id: 1.1, title: "Control integral de plagas", records: ["Fumigación periódica", "Monitoreo de medidas preventivas", "Monitoreo de trampas", "Planes de acción"] }, { id: 1.2, title: "Limpieza y desinfección", records: ["Limpieza diaria", "Limpieza semanal", "Planes de acción"] }] },
+            { id: 2, title: "MÓDULO 2: Requisitos para el Personal", icon: "👷", submodules: [{ id: 2.1, title: "Lista de chequeo", records: ["Chequeo diario"] }] },
+            { id: 3, title: "MÓDULO 3: Operaciones Claves", icon: "⚙️", submodules: [{ id: 3.1, title: "Proveedores", records: ["Criterios aceptación"] }] },
+            { id: 4, title: "MÓDULO 4: Equipos", icon: "🔧", submodules: [{ id: 4.1, title: "Certificaciones", records: ["Certificados"] }] },
+            { id: 5, title: "MÓDULO 5: Verificación", icon: "🚚", submodules: [{ id: 5.1, title: "Transporte", records: ["Inspección diaria"] }] },
+            { id: 6, title: "MÓDULO 6: Registros Sanitarios", icon: "📋", submodules: [{ id: 6.1, title: "Registros", records: ["Listado"] }] },
+            { id: 7, title: "MÓDULO 7: Tablas Nutricionales", icon: "🥗", submodules: [{ id: 7.1, title: "Tablas", records: ["Listado"] }] }
         ];
 
-        // --- ESTADO DE LA APP ---
-        let currentStep = { module: null, subModule: null, record: null };
-        let currentRole = "responsable"; // 'responsable' o 'jefe_calidad'
-        
-        // --- FUNCIONES DE NAVEGACIÓN ---
-
         function enterSystem() {
-            // Simulación de login simple. En producción, esto validaría usuario/pass
-            const roleInput = prompt("Ingrese su rol (escriba 'jefe' para jefe de calidad, cualquier otra cosa para responsable):", "responsable");
-            if (roleInput && roleInput.toLowerCase() === 'jefe') {
-                currentRole = "jefe_calidad";
-                document.getElementById('user-role-display').innerText = "Rol: Jefe de Calidad";
-            } else {
-                currentRole = "responsable";
-                document.getElementById('user-role-display').innerText = "Rol: Responsable";
-            }
-
+            const roleInput = prompt("Ingrese su rol (jefe o responsable):", "responsable");
+            currentRole = (roleInput && roleInput.toLowerCase() === 'jefe') ? "jefe_calidad" : "responsable";
+            document.getElementById('user-role-display').innerText = "Rol: " + (currentRole === "jefe_calidad" ? "Jefe de Calidad" : "Responsable");
             document.getElementById('landing-screen').style.display = 'none';
             document.getElementById('app-container').style.display = 'block';
             renderModules();
@@ -276,7 +206,7 @@
                 renderSubmoduleRecords(currentStep.module, currentStep.subModule);
                 currentStep.record = null;
             } else if (currentStep.subModule) {
-                renderModules(); // Volver a módulos principales
+                renderModules();
                 currentStep.subModule = null;
                 currentStep.module = null;
             }
@@ -285,26 +215,14 @@
         function updateHeader(title) {
             document.getElementById('current-screen-name').innerText = title;
             const backBtn = document.getElementById('btn-back-global');
-            if (currentStep.module || currentStep.subModule || currentStep.record) {
-                backBtn.style.visibility = 'visible';
-            } else {
-                backBtn.style.visibility = 'hidden';
-            }
+            backBtn.style.visibility = (currentStep.module || currentStep.subModule) ? 'visible' : 'hidden';
         }
-
-        // --- RENDERIZADO DE VISTAS ---
 
         function renderModules() {
             const container = document.getElementById('dynamic-content');
             let html = '<div class="grid-container">';
-            
             systemData.forEach(mod => {
-                html += `
-                    <div class="card" onclick="openModule(${mod.id})">
-                        <h3>${mod.icon} ${mod.title.toUpperCase()}</h3>
-                        <p>${mod.submodules.length} Submódulos</p>
-                    </div>
-                `;
+                html += `<div class="card" onclick="openModule(${mod.id})"><h3>${mod.icon} ${mod.title.toUpperCase()}</h3><p>${mod.submodules.length} Submódulos</p></div>`;
             });
             html += '</div>';
             container.innerHTML = html;
@@ -314,17 +232,10 @@
         function openModule(modId) {
             const mod = systemData.find(m => m.id === modId);
             currentStep.module = mod;
-            
             const container = document.getElementById('dynamic-content');
             let html = '<div class="grid-container">';
-            
             mod.submodules.forEach(sub => {
-                html += `
-                    <div class="card" style="border-left-color: var(--success-color);" onclick="openSubmodule(${modId}, ${sub.id})">
-                        <h3>${sub.title}</h3>
-                        <p>${sub.records.length} Registros</p>
-                    </div>
-                `;
+                html += `<div class="card" style="border-left-color: var(--success-color);" onclick="openSubmodule(${modId}, ${sub.id})"><h3>${sub.title}</h3><p>${sub.records.length} Registros</p></div>`;
             });
             html += '</div>';
             container.innerHTML = html;
@@ -334,11 +245,37 @@
         function openSubmodule(modId, subId) {
             const mod = systemData.find(m => m.id === modId);
             const sub = mod.submodules.find(s => s.id === subId);
-            
             currentStep.module = mod;
             currentStep.subModule = sub;
-
             const container = document.getElementById('dynamic-content');
             let html = '<h3>Registros: ' + sub.title + '</h3><div class="list-container">';
-            
-            sub.records.forEach((rec, index) =>
+            sub.records.forEach((rec, index) => {
+                html += `<div class="list-item" onclick="openRecord('${rec}')"><span>${rec}</span> <span>➡️</span></div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+            updateHeader(sub.title);
+        }
+
+        function openRecord(recordName) {
+            currentStep.record = recordName;
+            const container = document.getElementById('dynamic-content');
+            container.innerHTML = `
+                <div class="form-container">
+                    <h3>Registro: ${recordName}</h3>
+                    <div class="form-group"><label>Fecha:</label><input type="date"></div>
+                    <div class="form-group"><label>Observaciones:</label><textarea rows="4"></textarea></div>
+                    <div class="form-group"><label>Evidencia (Foto/Archivo):</label><input type="file"></div>
+                    <div class="action-bar">
+                        <button class="btn btn-save" onclick="alert('¡Registro Guardado! (Demo)')">Guardar</button>
+                        <button class="btn btn-attach" onclick="alert('Adjuntar archivo')">Adjuntar</button>
+                        <button class="btn btn-history" onclick="alert('Historial')">Historial</button>
+                        <button class="btn btn-delete" onclick="alert('Borrar')">Borrar</button>
+                    </div>
+                </div>
+            `;
+            updateHeader(recordName);
+        }
+    </script>
+</body>
+</html>
